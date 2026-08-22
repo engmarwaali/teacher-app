@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعد المعلم - Teacher Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-btn.active {
+            color: #0284c7;
+            font-weight: 700;
+        }
+        .tab-btn.active i {
+            transform: translateY(-2px);
+            color: #0284c7;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between max-w-md mx-auto shadow-2xl relative pb-20">
+
+    <!-- Header -->
+    <header class="bg-sky-100 p-4 sticky top-0 z-30 shadow-sm border-b border-sky-200">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-lg shadow">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sky-900 text-lg leading-tight" id="teacher-name-display">أ/ مروة علي</h1>
+                    <p class="text-xs text-sky-700 font-medium" id="teacher-title-display">مدرس حاسب ألي وتكنولوجيا المعلومات</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleModal('modal-notifications')" class="w-9 h-9 rounded-full bg-white text-sky-600 shadow-sm flex items-center justify-center hover:bg-sky-50 transition">
+                    <i class="fa-regular fa-bell text-lg"></i>
+                </button>
+                <button onclick="toggleModal('modal-profile')" class="w-9 h-9 rounded-full bg-white text-sky-600 shadow-sm flex items-center justify-center hover:bg-sky-50 transition">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Dynamic Panels -->
+    <main class="flex-1 p-4 overflow-y-auto custom-scrollbar">
+
+        <!-- 1. HOME TAB -->
+        <section id="tab-home" class="space-y-4">
+            <!-- Banner -->
+            <div class="bg-gradient-to-r from-sky-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-2">
+                        <i class="fa-regular fa-clock"></i> تنبيه قبل الحصة بـ 5 دقائق
+                    </div>
+                    <h2 class="text-2xl font-black mb-1">أهلاً بكِ يا أستاذة 👋</h2>
+                    <p class="text-sky-100 text-sm font-medium" id="home-today-summary">لديك اليوم حصص مجدولة بحسب الجدول الأسبوعي.</p>
+                </div>
+                <div class="absolute -left-4 -bottom-6 opacity-15 text-8xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+            </div>
+
+            <!-- Quick Metrics -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <div class="w-8 h-8 mx-auto mb-1 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <span class="block text-xl font-bold text-slate-800" id="stat-today-lessons">0</span>
+                    <span class="text-xs text-slate-500 font-medium">دروس اليوم</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <div class="w-8 h-8 mx-auto mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <span class="block text-xl font-bold text-slate-800" id="stat-total-groups">0</span>
+                    <span class="text-xs text-slate-500 font-medium">المجموعات</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 text-center">
+                    <div class="w-8 h-8 mx-auto mb-1 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <span class="block text-xl font-bold text-slate-800" id="stat-total-students">0</span>
+                    <span class="text-xs text-slate-500 font-medium">إجمالي الطلاب</span>
+                </div>
+            </div>
+
+            <!-- Today's Lessons -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-sky-600"></i> جدول دروس اليوم
+                    </h3>
+                    <button onclick="switchTab('tab-schedule')" class="text-xs font-bold text-sky-600 hover:underline">عرض الكل</button>
+                </div>
+                <div id="today-lessons-list" class="space-y-2">
+                    <!-- Dynamic -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. GROUPS TAB -->
+        <section id="tab-groups" class="space-y-4 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">المجموعات الدراسية</h2>
+                    <p class="text-xs text-slate-500">إدارة الصفوف والأيام والمواعيد</p>
+                </div>
+                <button onclick="openAddGroupModal()" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md flex items-center gap-2 transition">
+                    <i class="fa-solid fa-plus"></i> إضافة مجموعة
+                </button>
+            </div>
+
+            <div class="relative">
+                <input type="text" id="search-group-input" oninput="renderGroups()" placeholder="بحث باسم المجموعة أو المادة..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400"></i>
+            </div>
+
+            <div id="groups-list" class="space-y-3">
+                <!-- Dynamic Groups List -->
+            </div>
+        </section>
+
+        <!-- 3. STUDENTS TAB -->
+        <section id="tab-students" class="space-y-4 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">قائمة الطلاب</h2>
+                    <p class="text-xs text-slate-500">إدارة بيانات الطلاب وأولياء الأمور</p>
+                </div>
+                <button onclick="openAddStudentModal()" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md flex items-center gap-2 transition">
+                    <i class="fa-solid fa-user-plus"></i> إضافة طالب
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <div class="relative">
+                    <input type="text" id="search-student-input" oninput="renderStudents()" placeholder="بحث باسم الطالب أو رقم الهاتف..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400"></i>
+                </div>
+                <div id="student-group-filter-chips" class="flex gap-2 overflow-x-auto pb-1 custom-scrollbar text-xs">
+                    <!-- Dynamic Group Filter Chips -->
+                </div>
+            </div>
+
+            <div id="students-list" class="space-y-3">
+                <!-- Dynamic Students List -->
+            </div>
+        </section>
+
+        <!-- 4. PAYMENTS TAB -->
+        <section id="tab-payments" class="space-y-4 hidden">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">المدفوعات والإحصائيات المالية</h2>
+                    <p class="text-xs text-slate-500">متابعة الدخل الشهري وتاريخ دفع الطلاب</p>
+                </div>
+            </div>
+
+            <!-- اختيار الشهر المالي -->
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700">تصفية الفترة المالية (الشهر):</label>
+                <input type="month" id="payment-month-filter" onchange="renderPayments()" class="p-2 border border-slate-200 rounded-xl text-xs font-bold text-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            </div>
+
+            <!-- Stats Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl shadow-lg space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                    <span class="text-xs text-slate-300">إحصائيات الدخل المالي</span>
+                    <span class="text-xs font-bold bg-sky-500/20 text-sky-300 px-2.5 py-0.5 rounded-full border border-sky-500/30" id="financial-month-label">---</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 block">المتوقع</span>
+                        <span class="text-base font-extrabold text-sky-400" id="fin-expected">0 ج.م</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 block">تم تحصيله</span>
+                        <span class="text-base font-extrabold text-emerald-400" id="fin-collected">0 ج.م</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-400 block">المتبقي</span>
+                        <span class="text-base font-extrabold text-rose-400" id="fin-remaining">0 ج.م</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="payments-group-accordion" class="space-y-3">
+                <!-- Dynamic Financial Accordion -->
+            </div>
+        </section>
+
+        <!-- 5. TIMETABLE TAB -->
+        <section id="tab-schedule" class="space-y-4 hidden">
+            <div>
+                <h2 class="text-xl font-black text-slate-800">جدول أوقات الحصص والساعات</h2>
+                <p class="text-xs text-slate-500">مقسم بالساعات على مدار اليوم للتخصيص والحجز</p>
+            </div>
+
+            <!-- اختيار اليوم للتصفية -->
+            <div class="flex gap-2 overflow-x-auto pb-1 custom-scrollbar text-xs" id="schedule-day-chips">
+                <!-- Dynamic Day Filters -->
+            </div>
+
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 max-h-[450px] overflow-y-auto custom-scrollbar" id="hourly-schedule-container">
+                <!-- Dynamic Hourly Grid -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30 px-2 py-1.5 flex justify-around shadow-lg">
+        <button onclick="switchTab('tab-home')" id="btn-tab-home" class="tab-btn active flex flex-col items-center gap-1 text-slate-500 hover:text-sky-600 transition p-1">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px]">الرئيسية</span>
+        </button>
+        <button onclick="switchTab('tab-groups')" id="btn-tab-groups" class="tab-btn flex flex-col items-center gap-1 text-slate-500 hover:text-sky-600 transition p-1">
+            <i class="fa-solid fa-users text-lg"></i>
+            <span class="text-[10px]">المجموعات</span>
+        </button>
+        <button onclick="switchTab('tab-students')" id="btn-tab-students" class="tab-btn flex flex-col items-center gap-1 text-slate-500 hover:text-sky-600 transition p-1">
+            <i class="fa-solid fa-user-graduate text-lg"></i>
+            <span class="text-[10px]">الطلاب</span>
+        </button>
+        <button onclick="switchTab('tab-payments')" id="btn-tab-payments" class="tab-btn flex flex-col items-center gap-1 text-slate-500 hover:text-sky-600 transition p-1">
+            <i class="fa-solid fa-wallet text-lg"></i>
+            <span class="text-[10px]">المدفوعات</span>
+        </button>
+        <button onclick="switchTab('tab-schedule')" id="btn-tab-schedule" class="tab-btn flex flex-col items-center gap-1 text-slate-500 hover:text-sky-600 transition p-1">
+            <i class="fa-solid fa-calendar-days text-lg"></i>
+            <span class="text-[10px]">جدول المواعيد</span>
+        </button>
+    </nav>
+
+    <!-- MODAL: ADD / EDIT GROUP -->
+    <div id="modal-group" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-lg" id="modal-group-title">إضافة مجموعة جديدة</h3>
+                <button onclick="toggleModal('modal-group')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="group-form" onsubmit="saveGroup(event)" class="space-y-3">
+                <input type="hidden" id="group-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المجموعة / الصف</label>
+                    <input type="text" id="group-name" required placeholder="مثال: الصف الرابع الابتدائي" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المادة الدراسية</label>
+                    <input type="text" id="group-subject" required placeholder="مثال: لغة عربية / حاسب ألي" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">قيمة الاشتراك (ج.م)</label>
+                        <input type="number" id="group-price" required placeholder="150" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">توقيت الحصة (من الـ 24 ساعة)</label>
+                        <select id="group-time" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none font-sans">
+                            <!-- 24 Hours Options -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">أو ادخل موعد مخصص يدويًا</label>
+                    <input type="text" id="group-custom-time" placeholder="مثال: 02:30 PM أو 09:15 AM" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">أيام الحصة في الأسبوع:</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="السبت" class="rounded text-sky-600"> السبت</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="الأحد" class="rounded text-sky-600"> الأحد</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="الاثنين" class="rounded text-sky-600"> الاثنين</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="الثلاثاء" class="rounded text-sky-600"> الثلاثاء</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="الأربعاء" class="rounded text-sky-600"> الأربعاء</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50"><input type="checkbox" name="days" value="الخميس" class="rounded text-sky-600"> الخميس</label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-xl cursor-pointer hover:bg-sky-50 col-span-3 justify-center"><input type="checkbox" name="days" value="الجمعة" class="rounded text-sky-600"> الجمعة</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">حفظ البيانات</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT STUDENT -->
+    <div id="modal-student" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-lg" id="modal-student-title">إضافة طالب جديد</h3>
+                <button onclick="toggleModal('modal-student')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="student-form" onsubmit="saveStudent(event)" class="space-y-3">
+                <input type="hidden" id="student-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الطالب الرباعي</label>
+                    <input type="text" id="student-name" required placeholder="مثال: محمد طارق" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المجموعة الدراسية</label>
+                    <select id="student-group-id" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <!-- Dynamic Group Options -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">رقم هاتف ولي الأمر (واتساب)</label>
+                    <input type="tel" id="student-phone" required placeholder="01066860729" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none font-sans">
+                </div>
+
+                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">حفظ بيانات الطالب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SESSION ATTENDANCE & REPORT -->
+    <div id="modal-attendance" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="font-black text-slate-800 text-base" id="att-group-title">الصف الرابع الابتدائي</h3>
+                    <p class="text-xs text-sky-600 font-semibold" id="att-group-subtitle">لغة عربية • 02:00 PM</p>
+                </div>
+                <button onclick="toggleModal('modal-attendance')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Date Banner -->
+            <div class="bg-sky-50 border border-sky-100 p-3 rounded-2xl flex items-center justify-between text-xs font-bold text-sky-900">
+                <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-sky-600"></i> تاريخ اليوم:</span>
+                <span id="att-today-date">اليوم</span>
+            </div>
+
+            <div id="att-students-list" class="space-y-3">
+                <!-- Dynamic List -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PROFILE SETTINGS -->
+    <div id="modal-profile" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-lg">إعدادات المعلم</h3>
+                <button onclick="toggleModal('modal-profile')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="saveProfile(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلم</label>
+                    <input type="text" id="profile-name-input" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">المسمى الوظيفي / التخصص</label>
+                    <input type="text" id="profile-title-input" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm">حفظ التغييرات</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOTIFICATIONS -->
+    <div id="modal-notifications" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-5 w-full max-w-md shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-sky-600"></i> التنبيهات والإشعارات
+                </h3>
+                <button onclick="toggleModal('modal-notifications')" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="p-3 bg-sky-50 border border-sky-100 rounded-xl text-sky-900 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-600 mt-0.5"></i>
+                    <div>
+                        <span class="font-bold block">مرحباً بكِ في التحديث السحابي!</span>
+                        <span class="text-slate-600">التطبيق الآن متصل بقاعدة بيانات Firebase ومتزامن لحظياً بين الموبايل والكمبيوتر.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مكتبات Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFEMZ2peI-n2kTIacOpRtiMXUgxsse3nM",
+            authDomain: "teacher-app-16f49.firebaseapp.com",
+            databaseURL: "https://teacher-app-16f49-default-rtdb.firebaseio.com",
+            projectId: "teacher-app-16f49",
+            storageBucket: "teacher-app-16f49.firebasestorage.app",
+            messagingSenderId: "688185063107",
+            appId: "1:688185063107:web:177f5ffea18f207fa5d476",
+            measurementId: "G-0HG3DM4M3F"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const appRef = db.ref('teacher_app_data');
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        const currentMonthStr = new Date().toISOString().slice(0, 7);
+
+        let activeScheduleDay = "السبت";
+
+        let appData = {
+            teacher: { name: "أ/ مروة علي", title: "مدرس حاسب ألي وتكنولوجيا المعلومات" },
+            groups: [
+                { id: "g1", name: "الصف الخامس الابتدائي", subject: "حاسب ألي", price: 150, time: "01:00 PM", days: ["الاثنين", "الخميس"] },
+                { id: "g2", name: "الصف الرابع الابتدائي", subject: "تكنولوجيا المعلومات", price: 150, time: "02:00 PM", days: ["السبت", "الثلاثاء"] }
+            ],
+            students: [
+                { id: "s1", name: "محمد طارق", groupId: "g2", phone: "01066860729", attendance: { status: "حضر", homework: "كتب الواجب" } }
+            ],
+            payments: [
+                { id: "p1", studentId: "s1", amount: 150, date: todayStr, month: currentMonthStr }
+            ],
+            hourlyNotes: {}
+        };
+
+        function initData() {
+            document.getElementById('payment-month-filter').value = currentMonthStr;
+            const daysMap = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            activeScheduleDay = daysMap[new Date().getDay()];
+
+            populate24HourTimeOptions();
+
+            // المزامنة اللحظية مع Firebase
+            appRef.on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    appData = val;
+                    if (!appData.groups) appData.groups = [];
+                    if (!appData.students) appData.students = [];
+                    if (!appData.payments) appData.payments = [];
+                    if (!appData.hourlyNotes) appData.hourlyNotes = {};
+                } else {
+                    // إذا كانت قاعدة البيانات فارغة يتم رفع البيانات الافتراضية لأول مرة
+                    saveData();
+                }
+                renderAll();
+            });
+        }
+
+        function saveData() {
+            appRef.set(appData)
+            .then(() => console.log("تم التحديث في السحاب بنجاح"))
+            .catch((err) => console.error("خطأ في الحفظ السحابي:", err));
+        }
+
+        function populate24HourTimeOptions() {
+            const select = document.getElementById('group-time');
+            select.innerHTML = '';
+            
+            for (let hour = 0; hour < 24; hour++) {
+                for (let min of [0, 30]) {
+                    let period = hour >= 12 ? 'PM' : 'AM';
+                    let displayHour = hour % 12;
+                    if (displayHour === 0) displayHour = 12;
+                    let formattedHour = displayHour < 10 ? '0' + displayHour : displayHour;
+                    let formattedMin = min < 10 ? '0' + min : min;
+                    let timeValue = `${formattedHour}:${formattedMin} ${period}`;
+                    
+                    let opt = document.createElement('option');
+                    opt.value = timeValue;
+                    opt.textContent = `${timeValue} (${hour < 12 ? 'صباحاً' : 'مساءً'})`;
+                    select.appendChild(opt);
+                }
+            }
+        }
+
+        function switchTab(tabId) {
+            ['tab-home', 'tab-groups', 'tab-students', 'tab-payments', 'tab-schedule'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${tabId}`).classList.add('active');
+        }
+
+        function toggleModal(modalId) {
+            document.getElementById(modalId).classList.toggle('hidden');
+        }
+
+        function renderAll() {
+            document.getElementById('teacher-name-display').innerText = appData.teacher.name;
+            document.getElementById('teacher-title-display').innerText = appData.teacher.title;
+            document.getElementById('profile-name-input').value = appData.teacher.name;
+            document.getElementById('profile-title-input').value = appData.teacher.title;
+
+            renderStats();
+            renderTodayLessons();
+            renderGroups();
+            renderStudents();
+            renderPayments();
+            renderTimetable();
+        }
+
+        function renderStats() {
+            document.getElementById('stat-total-groups').innerText = appData.groups.length;
+            document.getElementById('stat-total-students').innerText = appData.students.length;
+            
+            const daysMap = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const todayName = daysMap[new Date().getDay()];
+            const todayGroups = appData.groups.filter(g => g.days && g.days.includes(todayName));
+            document.getElementById('stat-today-lessons').innerText = todayGroups.length;
+        }
+
+        function renderTodayLessons() {
+            const container = document.getElementById('today-lessons-list');
+            const daysMap = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const todayName = daysMap[new Date().getDay()];
+            const todayGroups = appData.groups.filter(g => g.days && g.days.includes(todayName));
+
+            if (todayGroups.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm text-center border border-slate-100">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-mug-hot"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-sm">لا توجد حصص مجدولة لليوم (${todayName}) 🎉</h4>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = todayGroups.map(g => {
+                const count = appData.students.filter(s => s.groupId === g.id).length;
+                return `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-base">${g.name}</h4>
+                            <p class="text-xs text-sky-600 font-semibold mt-0.5">${g.subject} • ${g.time}</p>
+                            <span class="text-[11px] text-slate-400 mt-1 block"><i class="fa-solid fa-users text-slate-300"></i> ${count} طلاب</span>
+                        </div>
+                        <button onclick="openAttendanceModal('${g.id}')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow transition">
+                            تسجيل الحضور
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('groups-list');
+            const query = (document.getElementById('search-group-input')?.value || '').toLowerCase();
+            const filtered = appData.groups.filter(g => g.name.toLowerCase().includes(query) || g.subject.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">لا توجد مجموعات مطابقة</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(g => {
+                const studentCount = appData.students.filter(s => s.groupId === g.id).length;
+                return `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-3 items-center">
+                                <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-lg">
+                                    <i class="fa-solid fa-users-rectangle"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-base">${g.name}</h4>
+                                    <p class="text-xs text-sky-600 font-medium">${g.subject}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="editGroup('${g.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-600 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteGroup('${g.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl flex justify-between items-center text-xs font-semibold text-slate-600">
+                            <span><i class="fa-regular fa-clock text-sky-600"></i> ${g.days ? g.days.join(' / ') : ''} • ${g.time}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-100">
+                            <span class="text-slate-500 font-medium">الطلاب: <b>${studentCount}</b> | الاشتراك: <b>${g.price} ج.م</b></span>
+                            <button onclick="openAttendanceModal('${g.id}')" class="text-sky-600 hover:underline font-bold">
+                                الكشوف والتسجيل <i class="fa-solid fa-angle-left"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAddGroupModal() {
+            document.getElementById('modal-group-title').innerText = "إضافة مجموعة جديدة";
+            document.getElementById('group-id').value = "";
+            document.getElementById('group-name').value = "";
+            document.getElementById('group-subject').value = "";
+            document.getElementById('group-price').value = "";
+            document.getElementById('group-custom-time').value = "";
+            document.querySelectorAll('input[name="days"]').forEach(cb => cb.checked = false);
+            toggleModal('modal-group');
+        }
+
+        function editGroup(id) {
+            const g = appData.groups.find(x => x.id === id);
+            if (!g) return;
+
+            document.getElementById('modal-group-title').innerText = "تعديل بيانات المجموعة";
+            document.getElementById('group-id').value = g.id;
+            document.getElementById('group-name').value = g.name;
+            document.getElementById('group-subject').value = g.subject;
+            document.getElementById('group-price').value = g.price;
+            
+            const timeSelect = document.getElementById('group-time');
+            if (Array.from(timeSelect.options).some(opt => opt.value === g.time)) {
+                timeSelect.value = g.time;
+                document.getElementById('group-custom-time').value = "";
+            } else {
+                document.getElementById('group-custom-time').value = g.time;
+            }
+
+            document.querySelectorAll('input[name="days"]').forEach(cb => {
+                cb.checked = g.days && g.days.includes(cb.value);
+            });
+
+            toggleModal('modal-group');
+        }
+
+        function saveGroup(e) {
+            e.preventDefault();
+            const id = document.getElementById('group-id').value;
+            const name = document.getElementById('group-name').value;
+            const subject = document.getElementById('group-subject').value;
+            const price = parseFloat(document.getElementById('group-price').value) || 0;
+            const customTime = document.getElementById('group-custom-time').value.trim();
+            const selectedTime = customTime !== "" ? customTime : document.getElementById('group-time').value;
+
+            const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(cb => cb.value);
+
+            if (days.length === 0) {
+                alert("برجاء اختيار يوم واحد على الأقل للمجموعة");
+                return;
+            }
+
+            if (id) {
+                const index = appData.groups.findIndex(g => g.id === id);
+                if (index !== -1) {
+                    appData.groups[index] = { id, name, subject, price, time: selectedTime, days };
+                }
+            } else {
+                const newId = "g_" + Date.now();
+                appData.groups.push({ id: newId, name, subject, price, time: selectedTime, days });
+            }
+
+            saveData();
+            toggleModal('modal-group');
+        }
+
+        function deleteGroup(id) {
+            if (confirm("هل أنتِ متأكدة من حذف هذه المجموعة؟")) {
+                appData.groups = appData.groups.filter(g => g.id !== id);
+                appData.students = appData.students.filter(s => s.groupId !== id);
+                saveData();
+            }
+        }
+
+        let activeStudentFilterGroup = 'all';
+        function renderStudents() {
+            const container = document.getElementById('students-list');
+            const chipsContainer = document.getElementById('student-group-filter-chips');
+            const query = (document.getElementById('search-student-input')?.value || '').toLowerCase();
+
+            chipsContainer.innerHTML = `
+                <button onclick="filterStudentsGroup('all')" class="px-3 py-1 rounded-full whitespace-nowrap font-bold transition ${activeStudentFilterGroup === 'all' ? 'bg-sky-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200'}">جميع المجموعات (${appData.students.length})</button>
+            ` + appData.groups.map(g => {
+                const cnt = appData.students.filter(s => s.groupId === g.id).length;
+                return `
+                    <button onclick="filterStudentsGroup('${g.id}')" class="px-3 py-1 rounded-full whitespace-nowrap font-bold transition ${activeStudentFilterGroup === g.id ? 'bg-sky-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200'}">${g.name} (${cnt})</button>
+                `;
+            }).join('');
+
+            let filtered = appData.students;
+            if (activeStudentFilterGroup !== 'all') {
+                filtered = filtered.filter(s => s.groupId === activeStudentFilterGroup);
+            }
+            if (query) {
+                filtered = filtered.filter(s => s.name.toLowerCase().includes(query) || s.phone.includes(query));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">لا يوجد طلاب مسجلين هنا</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(s => {
+                const group = appData.groups.find(g => g.id === s.groupId) || { name: "غير محدد" };
+                return `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex gap-3 items-center">
+                                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-base">
+                                    ${s.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-base">${s.name}</h4>
+                                    <p class="text-xs text-sky-600 font-medium">${group.name}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="editStudent('${s.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-600 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteStudent('${s.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center transition">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-2 border-t border-slate-100">
+                            <a href="tel:${s.phone}" class="flex-1 bg-sky-50 text-sky-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 hover:bg-sky-100 transition">
+                                <i class="fa-solid fa-phone"></i> اتصال
+                            </a>
+                            <a href="https://wa.me/2${s.phone}" target="_blank" class="flex-1 bg-emerald-50 text-emerald-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 hover:bg-emerald-100 transition">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> واتساب
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterStudentsGroup(groupId) {
+            activeStudentFilterGroup = groupId;
+            renderStudents();
+        }
+
+        function openAddStudentModal() {
+            if (appData.groups.length === 0) {
+                alert("برجاء إضافة مجموعة دراسية أولاً.");
+                return;
+            }
+            document.getElementById('modal-student-title').innerText = "إضافة طالب جديد";
+            document.getElementById('student-id').value = "";
+            document.getElementById('student-name').value = "";
+            document.getElementById('student-phone').value = "";
+
+            const groupSelect = document.getElementById('student-group-id');
+            groupSelect.innerHTML = appData.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+
+            toggleModal('modal-student');
+        }
+
+        function editStudent(id) {
+            const s = appData.students.find(x => x.id === id);
+            if (!s) return;
+
+            document.getElementById('modal-student-title').innerText = "تعديل بيانات الطالب";
+            document.getElementById('student-id').value = s.id;
+            document.getElementById('student-name').value = s.name;
+            document.getElementById('student-phone').value = s.phone;
+
+            const groupSelect = document.getElementById('student-group-id');
+            groupSelect.innerHTML = appData.groups.map(g => `<option value="${g.id}" ${g.id === s.groupId ? 'selected' : ''}>${g.name}</option>`).join('');
+
+            toggleModal('modal-student');
+        }
+
+        function saveStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('student-id').value;
+            const name = document.getElementById('student-name').value;
+            const groupId = document.getElementById('student-group-id').value;
+            const phone = document.getElementById('student-phone').value;
+
+            if (id) {
+                const idx = appData.students.findIndex(s => s.id === id);
+                if (idx !== -1) {
+                    appData.students[idx] = { ...appData.students[idx], name, groupId, phone };
+                }
+            } else {
+                const newId = "s_" + Date.now();
+                appData.students.push({
+                    id: newId,
+                    name,
+                    groupId,
+                    phone,
+                    attendance: { status: "لم يحدد", homework: "لم يحدد" }
+                });
+            }
+
+            saveData();
+            toggleModal('modal-student');
+        }
+
+        function deleteStudent(id) {
+            if (confirm("هل أنتِ متأكدة من حذف هذا الطالب؟")) {
+                appData.students = appData.students.filter(s => s.id !== id);
+                appData.payments = appData.payments.filter(p => p.studentId !== id);
+                saveData();
+            }
+        }
+
+        function renderPayments() {
+            const selectedMonth = document.getElementById('payment-month-filter').value || currentMonthStr;
+            document.getElementById('financial-month-label').innerText = selectedMonth;
+
+            let totalExpected = 0;
+            let totalCollected = 0;
+
+            appData.students.forEach(s => {
+                const g = appData.groups.find(x => x.id === s.groupId);
+                const price = g ? g.price : 0;
+                totalExpected += price;
+
+                const payment = appData.payments.find(p => p.studentId === s.id && p.month === selectedMonth);
+                if (payment) {
+                    totalCollected += payment.amount;
+                }
+            });
+
+            const remaining = totalExpected - totalCollected;
+
+            document.getElementById('fin-expected').innerText = totalExpected + " ج.م";
+            document.getElementById('fin-collected').innerText = totalCollected + " ج.م";
+            document.getElementById('fin-remaining').innerText = remaining + " ج.م";
+
+            const container = document.getElementById('payments-group-accordion');
+            container.innerHTML = appData.groups.map(g => {
+                const students = appData.students.filter(s => s.groupId === g.id);
+                const gExpected = students.length * g.price;
+                
+                let gCollected = 0;
+                students.forEach(s => {
+                    const p = appData.payments.find(p => p.studentId === s.id && p.month === selectedMonth);
+                    if (p) gCollected += p.amount;
+                });
+
+                const gRemaining = gExpected - gCollected;
+
+                return `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-extrabold text-slate-800 text-sm">${g.name}</h4>
+                                <p class="text-xs text-slate-400">${g.subject} • ${students.length} طالب</p>
+                            </div>
+                            <span class="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full">${g.price} ج.م/طالب</span>
+                        </div>
+
+                        <div class="bg-slate-50 p-2.5 rounded-xl grid grid-cols-3 gap-2 text-center text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">المتوقع</span>
+                                <span class="font-bold text-slate-700">${gExpected} ج.م</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">المحصل</span>
+                                <span class="font-bold text-emerald-600">${gCollected} ج.م</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">المتبقي</span>
+                                <span class="font-bold text-rose-600">${gRemaining} ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-1">
+                            ${students.map(s => {
+                                const payment = appData.payments.find(p => p.studentId === s.id && p.month === selectedMonth);
+                                const isPaid = !!payment;
+                                const payDate = payment ? payment.date : todayStr;
+
+                                return `
+                                    <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="font-bold text-slate-800">${s.name}</span>
+                                            <span class="text-[10px] font-bold ${isPaid ? 'text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded' : 'text-rose-600 bg-rose-50 px-2 py-0.5 rounded'}">
+                                                ${isPaid ? 'تم التحصيل ✔' : 'لم يدفع'}
+                                            </span>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 text-xs">
+                                            <input type="date" value="${payDate}" id="pdate-${s.id}" class="border rounded-lg p-1 text-[11px] bg-white outline-none focus:ring-1 focus:ring-sky-500">
+                                            <button onclick="recordStudentPayment('${s.id}', ${g.price})" class="flex-1 font-bold py-1 px-2 rounded-lg text-xs transition ${isPaid ? 'bg-slate-200 text-slate-700 hover:bg-rose-100 hover:text-rose-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}">
+                                                ${isPaid ? 'إلغاء / تعديل' : 'تسجيل دفع الطالب'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function recordStudentPayment(studentId, price) {
+            const selectedMonth = document.getElementById('payment-month-filter').value || currentMonthStr;
+            const payDateInput = document.getElementById(`pdate-${studentId}`).value || todayStr;
+
+            const existingIndex = appData.payments.findIndex(p => p.studentId === studentId && p.month === selectedMonth);
+
+            if (existingIndex !== -1) {
+                if (confirm("هل تريدين إلغاء تسجيل هذه السداد لهذا الشهر؟")) {
+                    appData.payments.splice(existingIndex, 1);
+                }
+            } else {
+                appData.payments.push({
+                    id: "pay_" + Date.now(),
+                    studentId: studentId,
+                    amount: price,
+                    date: payDateInput,
+                    month: selectedMonth
+                });
+            }
+
+            saveData();
+        }
+
+        function renderTimetable() {
+            const days = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
+            const chipsContainer = document.getElementById('schedule-day-chips');
+
+            chipsContainer.innerHTML = days.map(d => `
+                <button onclick="changeScheduleDay('${d}')" class="px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition text-xs ${activeScheduleDay === d ? 'bg-sky-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200'}">
+                    ${d}
+                </button>
+            `).join('');
+
+            const gridContainer = document.getElementById('hourly-schedule-container');
+            gridContainer.innerHTML = '';
+
+            const dayGroups = appData.groups.filter(g => g.days && g.days.includes(activeScheduleDay));
+
+            for (let hour = 0; hour < 24; hour++) {
+                const hourFormatted = hour.toString().padStart(2, '0') + ':00';
+                const periodLabel = hour >= 12 ? (hour === 12 ? '12:00 م' : `${hour-12}:00 م`) : (hour === 0 ? '12:00 ص' : `${hour}:00 ص`);
+                const noteKey = `${activeScheduleDay}_${hourFormatted}`;
+                const savedNote = appData.hourlyNotes[noteKey] || '';
+
+                const matchingGroups = dayGroups.filter(g => {
+                    return g.time.includes(periodLabel.split(' ')[0]);
+                });
+
+                const hourBox = document.createElement('div');
+                hourBox.className = "p-3 border border-slate-100 rounded-xl bg-slate-50/60 flex flex-col gap-2 hover:border-sky-300 transition";
+                
+                let groupBadges = matchingGroups.map(g => `<span class="bg-sky-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">${g.name} (${g.subject})</span>`).join(' ');
+
+                hourBox.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-extrabold text-xs text-sky-900 bg-sky-100 px-2 py-0.5 rounded-lg">${periodLabel}</span>
+                        <div class="flex gap-1 flex-wrap">${groupBadges}</div>
+                    </div>
+                    <input type="text" value="${savedNote}" placeholder="ملاحظة أو حجز..." 
+                        onchange="saveHourNote('${noteKey}', this.value)"
+                        class="w-full text-xs p-2 border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-sky-500 outline-none">
+                `;
+                gridContainer.appendChild(hourBox);
+            }
+        }
+
+        function changeScheduleDay(day) {
+            activeScheduleDay = day;
+            renderTimetable();
+        }
+
+        function saveHourNote(key, value) {
+            if (!appData.hourlyNotes) appData.hourlyNotes = {};
+            appData.hourlyNotes[key] = value;
+            saveData();
+        }
+
+        function openAttendanceModal(groupId) {
+            const g = appData.groups.find(x => x.id === groupId);
+            if (!g) return;
+
+            document.getElementById('att-group-title').innerText = g.name;
+            document.getElementById('att-group-subtitle').innerText = `${g.subject} • ${g.time}`;
+
+            const students = appData.students.filter(s => s.groupId === groupId);
+            const container = document.getElementById('att-students-list');
+
+            if (students.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">لا يوجد طلاب مسجلين في هذه المجموعة حتى الآن.</div>`;
+            } else {
+                container.innerHTML = students.map(s => {
+                    const att = s.attendance || { status: "لم يحدد", homework: "لم يحدد" };
+                    return `
+                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-800 text-sm">${s.name}</span>
+                                <span class="text-[11px] text-slate-500 font-mono">${s.phone}</span>
+                            </div>
+
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-600 block mb-1">موقف الحضور والغياب:</span>
+                                <div class="grid grid-cols-3 gap-1.5 text-xs">
+                                    <button onclick="updateAttendance('${s.id}', 'status', 'حضر')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.status === 'حضر' ? 'bg-emerald-500 text-white border-emerald-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-check"></i> حضر
+                                    </button>
+                                    <button onclick="updateAttendance('${s.id}', 'status', 'لم يحضر')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.status === 'لم يحضر' ? 'bg-rose-500 text-white border-rose-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-xmark"></i> لم يحضر
+                                    </button>
+                                    <button onclick="updateAttendance('${s.id}', 'status', 'متأخر')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.status === 'متأخر' ? 'bg-amber-500 text-white border-amber-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-clock"></i> متأخر
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-600 block mb-1">موقف حل الواجب:</span>
+                                <div class="grid grid-cols-3 gap-1.5 text-xs">
+                                    <button onclick="updateAttendance('${s.id}', 'homework', 'كتب الواجب')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.homework === 'كتب الواجب' ? 'bg-emerald-500 text-white border-emerald-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-book"></i> كتب الواجب
+                                    </button>
+                                    <button onclick="updateAttendance('${s.id}', 'homework', 'لم يكتب')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.homework === 'لم يكتب' ? 'bg-rose-500 text-white border-rose-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> لم يكتب
+                                    </button>
+                                    <button onclick="updateAttendance('${s.id}', 'homework', 'تسليم متأخر')" class="py-1.5 px-2 rounded-xl font-bold border transition flex items-center justify-center gap-1 ${att.homework === 'تسليم متأخر' ? 'bg-amber-500 text-white border-amber-600 shadow' : 'bg-white text-slate-600 border-slate-200'}">
+                                        <i class="fa-solid fa-hourglass-half"></i> تسليم متأخر
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button onclick="sendWhatsAppReport('${s.id}')" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 shadow transition">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> إرسال تقرير عبر الواتساب
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            toggleModal('modal-attendance');
+        }
+
+        function updateAttendance(studentId, field, value) {
+            const s = appData.students.find(x => x.id === studentId);
+            if (s) {
+                if (!s.attendance) s.attendance = {};
+                s.attendance[field] = value;
+                saveData();
+                openAttendanceModal(s.groupId);
+            }
+        }
+
+        function sendWhatsAppReport(studentId) {
+            const s = appData.students.find(x => x.id === studentId);
+            if (!s) return;
+
+            const g = appData.groups.find(x => x.id === s.groupId) || { name: "" };
+            const att = s.attendance || { status: "حضر", homework: "كتب الواجب" };
+
+            const daysMap = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const todayName = daysMap[new Date().getDay()];
+
+            const text = `السلام عليكم، تفاصيل اليوم للطالب [${s.name}]:
+المجموعة: ${g.name}
+التاريخ: ${todayName} ${new Date().toLocaleDateString('ar-EG')}
+
+السيشن / الحضور: ✔️
+${att.status}
+
+الواجب المنزلي: 📚
+${att.homework}
+
+مع تحيات: ${appData.teacher.name}`;
+
+            const url = `https://wa.me/2${s.phone}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            appData.teacher.name = document.getElementById('profile-name-input').value;
+            appData.teacher.title = document.getElementById('profile-title-input').value;
+            saveData();
+            toggleModal('modal-profile');
+        }
+
+        window.onload = initData;
+    </script>
+</body>
+</html>
